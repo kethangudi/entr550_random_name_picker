@@ -21,7 +21,7 @@ using namespace mbed;
 #endif
 
 
-#define MAX_NAMES 20
+#define MAX_NAMES 50
 #define MAX_NAME_LENGTH 32
 
 #if defined(USE_FLASH_STORAGE)
@@ -32,7 +32,7 @@ FlashIAPBlockDevice flash(0xE0000, STORAGE_SIZE);
 
 #define STORAGE_MAGIC 0x4E414D45
 
-#define BUTTON 2
+#define BUTTON 3
 
 
 struct NameStorage {
@@ -43,8 +43,12 @@ struct NameStorage {
 
 NameStorage storage;
 String inputBuffer = "";
-
+#if defined(USE_FLASH_STORAGE)
+LiquidCrystal lcd(5,6,12,11,10,9);
+#else 
 LiquidCrystal lcd(4, 6, 10, 11, 12, 13);
+#endif
+
 
 
 
@@ -80,6 +84,8 @@ void buttonPressed(uint8_t btnId, uint8_t btnState) {
       pickNext(name);
     }
 
+    Serial.print(name);
+
     lcd.clear();
     lcd.print(name);
   }
@@ -91,7 +97,7 @@ void setup() {
 
   /************ SERIAL SETUP ***************/
   Serial.begin(9600);
-  while (!Serial) {}
+  /*while (!Serial) {}*/
 
   Serial.println("Name Manager Ready");
   Serial.println("Commands: READ, CLEAR, COUNT:n, NAME:i:name, SAVE");
@@ -101,6 +107,7 @@ void setup() {
   lcd.print("Push button");
   lcd.setCursor(0, 1);
   lcd.print("to start");
+  Serial.println("Push button to start");
 
   /***********  BUTTON SETUP *************/
   pinMode(BUTTON, INPUT_PULLUP);
